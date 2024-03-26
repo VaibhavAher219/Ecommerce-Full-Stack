@@ -46,8 +46,6 @@ exports.logout=catchAsyncErrors(async(req,res,next)=>{
     res.cookie('Token', null ,{
         httpOnly : true,
         expires : new Date(Date.now()+0)
-    
-        
     })
    
 
@@ -121,12 +119,11 @@ exports.resetPassword = catchAsyncErrors(async(req,res,next)=>{
 
 
 exports.getUserDetails = catchAsyncErrors(async(req,res,next)=>{
-    const red= req.user.id;
-    console.log(red);
-    const user1 = await User.findById(req.user.id);
+  
+    const user = await User.findById(req.User.id);
     res.status(200).json({
         success:true,
-        user1
+        user
     })
 
 }
