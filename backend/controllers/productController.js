@@ -71,3 +71,42 @@ exports.deleteProduct = catchAsyncErrors(async (req,res,next) =>{
         message : "Product deleted"
     })
 } );
+
+
+
+//create new  review
+
+exports.createReview= catchAsyncErrors(async(req,res,next)=>{
+    const {rating,comment,productId}=req.body
+    const review={
+        user1:  req.User.id,
+        name:req.user1.name,
+        rating:Number(rating),
+        comment
+    }
+    const product = await Product.findById(productId);
+    const isReviewed = product.reviews.find(rev=>rev.user1.toString()===req.user.id)
+    if(isReviewed){
+        product.reviews.forEach(rev=>{
+            if(rev=>rev.user1.toString()===req.user1.id){
+            rev.rating = rating,
+            rev.comment=comment
+            }
+        })
+    }
+    else{
+        product.reviews.push(review);
+        product.numOfReviews = product.reviews.length;
+    }
+    let avg=0;
+    product.ratings= product.reviews.forEach(rev=>{
+        avg=avg+rev.rating;
+
+    })/product.reviews.length;
+
+    await product.save({validateBeforeSave:false});
+
+    res.status(200).json({
+        success:true
+    })
+})

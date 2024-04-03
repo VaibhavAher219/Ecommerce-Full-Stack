@@ -9,7 +9,7 @@ process.on('uncaughtException',(err)=>{
     process.exit();
 })
 
-dotenv.config({path:"backend/config/config.env"});
+dotenv.config({path:"backend/config/.env"});
 connectDatabase();
 const server = app.listen(process.env.PORT,()=>{
     console.log("server is working")

@@ -129,3 +129,54 @@ exports.getUserDetails = catchAsyncErrors(async(req,res,next)=>{
 }
     
 )
+
+//
+exports.updatePassword = catchAsyncErrors(async(req,res,next)=>{
+    const user = await User.findById(req.User.id).select('+password');
+    const isMatch = await user.comparePassword(req.body.oldPassword);
+    if(!isMatch){
+        return next(new ErrorHandler("Old pass incorrect",400))
+    }
+    if(req.body.newPassword!==req.body.confirmPassword)
+    {
+        return next(new ErrorHandler("Not Match",400))
+
+    }
+    user.password= req.body.newPassword;
+    await user.save();
+    
+    sendToken(user,200,res)
+})
+
+//profile
+
+exports.updateProfile = catchAsyncErrors(async(req,res,next)=>{
+    
+    const newUserData={
+        name : req.body.name,
+        email: req.body.email
+    }
+    const user = User.findByIdAndUpdate(req.User.id,newUserData,{
+        new:true,
+        runValidators:true,
+        useFindAndModify:false
+
+    })
+        res.status(200).json({
+            success:true
+        })
+    
+    
+
+
+
+})
+
+//get all user
+exports.getALLUser = catchAsyncErrors(async(req,res,next)=>{
+    const users = await User.find();
+    return res.status(201).json({
+        success:true,
+        users
+    })
+})
