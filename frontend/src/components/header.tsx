@@ -1,48 +1,75 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { FaSearch, FaShoppingBag, FaSignInAlt, FaUser } from 'react-icons/fa'
+import { Link } from "react-router-dom";
+import {
+  FaSearch,
+  FaShoppingBag,
+  FaSignInAlt,
+  FaUser,
+  FaSignOutAlt,
+} from "react-icons/fa";
+import { useState } from "react";
+import { User } from "../types/types";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase";
+import toast from "react-hot-toast";
 
-const user = {_id:"abcd", role:"admin"}
-const Header = () => {
-    const [isOpen, setIsOpen] = useState<boolean>(false)
-  return (
-    <nav>
-        <Link to={'/'}>Home</Link>
-        <Link to={'/search'}>
-            <FaSearch/>
-        </Link>
-        <Link to ={'/cart'}>
-            <FaShoppingBag></FaShoppingBag>
-        </Link>
-        {
-            user?._id?(
-                <>
-                <button>
-                    <FaUser></FaUser>
-                </button>
-                <dialog open={true}>
-                    <div>
-                        {
-                            user.role==="admin" && (
-                                <Link to={'/admin/dashboard'}>Admin</Link>
-                            )
-                        }
-                    <Link to={'/orders'}>Orders</Link>
-
-
-                    </div>
-                </dialog>
-                </>
-            ): <Link to ={'/cart'}>
-               <FaSignInAlt></FaSignInAlt> </Link>
-
-        }
-        
-
-
-
-    </nav>
-  )
+interface PropsType {
+  user: User | null;
 }
 
-export default Header
+const Header = ({ user }: PropsType) => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const logoutHandler = async () => {
+    try {
+      await signOut(auth);
+      toast.success("Sign Out Successfully");
+      setIsOpen(false);
+    } catch (error) {
+      toast.error("Sign Out Fail");
+    }
+  };
+
+  return (
+    <nav className="header">
+      <Link onClick={() => setIsOpen(false)} to={"/"}>
+        HOME
+      </Link>
+      <Link onClick={() => setIsOpen(false)} to={"/search"}>
+        <FaSearch />
+      </Link>
+      <Link onClick={() => setIsOpen(false)} to={"/cart"}>
+        <FaShoppingBag />
+      </Link>
+
+      {user?._id ? (
+        <>
+          <button onClick={() => setIsOpen((prev) => !prev)}>
+            <FaUser />
+          </button>
+          <dialog open={isOpen}>
+            <div>
+              {user.role === "admin" && (
+                <Link onClick={() => setIsOpen(false)} to="/admin/dashboard">
+                  Admin
+                </Link>
+              )}
+
+              <Link onClick={() => setIsOpen(false)} to="/orders">
+                Orders
+              </Link>
+              <button onClick={logoutHandler}>
+                <FaSignOutAlt />
+              </button>
+            </div>
+          </dialog>
+        </>
+      ) : (
+        <Link to={"/login"}>
+          <FaSignInAlt />
+        </Link>
+      )}
+    </nav>
+  );
+};
+
+export default Header;
